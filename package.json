@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/nki1025/sandbox2/issues"
   },
+    "engines": {
+    "node": "22.x"
+  },
   "homepage": "https://github.com/nki1025/sandbox2#readme"
 }
