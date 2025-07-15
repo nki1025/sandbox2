@@ -11,5 +11,17 @@
     "next": "^13.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  }
+  },
+  "description": "",
+  "main": "test1.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nki1025/sandbox2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nki1025/sandbox2/issues"
+  },
+  "homepage": "https://github.com/nki1025/sandbox2#readme"
 }
