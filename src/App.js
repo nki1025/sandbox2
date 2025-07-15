@@ -1,4 +1,4 @@
-﻿// src/App.js (または App.jsx)
+// src/App.js (または App.jsx)
 import React from 'react';
 
 function App() {

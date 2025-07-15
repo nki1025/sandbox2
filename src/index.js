@@ -1,4 +1,4 @@
-﻿// src/index.js (または index.jsx)
+// src/index.js (または index.jsx)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css'; // CSSファイルをインポートすることも可能
