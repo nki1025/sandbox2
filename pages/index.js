@@ -1,7 +1,15 @@
+// pages/index.js
+// このファイルはNext.jsのルートページ（/）として機能します。
+// 納品検品システムのメインアプリケーションコンポーネントを定義しています。
+
 import React, { useState, useEffect } from 'react';
-import { Package, CheckCircle2, XCircle, Search, CalendarDays, ChevronRight, ChevronLeft, Save, Edit } from 'lucide-react'; // アイコンのインポート
+// UIに表示されるアイコンをインポートします。
+// これらのアイコンを使用するには、プロジェクトに 'lucide-react' がインストールされている必要があります。
+// (例: npm install lucide-react または yarn add lucide-react)
+import { Package, CheckCircle2, XCircle, Search, CalendarDays, ChevronRight, ChevronLeft, Save, Edit } from 'lucide-react';
 
 // モックデータ: 納品伝票のリスト
+// 実際のアプリケーションでは、このデータはAPIから取得されるか、データベースからロードされます。
 const mockDeliveries = [
   {
     id: 'D001',
@@ -10,7 +18,7 @@ const mockDeliveries = [
     status: 'pending', // 未検品
     items: [
       { id: 'I001', name: '真鯛（養殖）', quantityOrdered: 5, quantityReceived: null, unit: 'kg', status: 'pending', rejectionReason: '' },
-      { id: 'I002', name: '本マグロ（赤身）', Git: GitHubにサインインquantityOrdered: 3, quantityReceived: null, unit: 'kg', status: 'pending', rejectionReason: '' },
+      { id: 'I002', name: '本マグロ（赤身）', quantityOrdered: 3, quantityReceived: null, unit: 'kg', status: 'pending', rejectionReason: '' },
       { id: 'I003', name: '活アワビ', quantityOrdered: 10, quantityReceived: null, unit: '個', status: 'pending', rejectionReason: '' },
     ],
   },
@@ -58,14 +66,15 @@ const mockDeliveries = [
 ];
 
 // RejectionReasonModal コンポーネント
+// 差し戻し理由を入力するためのモーダルダイアログ
 const RejectionReasonModal = ({ isOpen, onClose, onSubmit, itemName }) => {
   const [reason, setReason] = useState('');
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // モーダルが非表示の場合は何もレンダリングしない
 
   const handleSubmit = () => {
-    onSubmit(reason);
-    setReason(''); // Reset reason after submission
+    onSubmit(reason); // 親コンポーネントに理由を渡して送信
+    setReason(''); // 送信後、理由をリセット
   };
 
   return (
@@ -81,7 +90,7 @@ const RejectionReasonModal = ({ isOpen, onClose, onSubmit, itemName }) => {
         ></textarea>
         <div className="flex justify-end space-x-3">
           <button
-            onClick={() => { onClose(); setReason(''); }}
+            onClick={() => { onClose(); setReason(''); }} // キャンセル時に理由をリセットしてモーダルを閉じる
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors duration-200"
           >
             キャンセル
@@ -99,31 +108,41 @@ const RejectionReasonModal = ({ isOpen, onClose, onSubmit, itemName }) => {
 };
 
 // メインアプリケーションコンポーネント
+// 納品検品システムの主要なロジックとUIを管理します。
 const App = () => {
+  // 納品伝票のリストを管理するstate
   const [deliveries, setDeliveries] = useState(mockDeliveries);
+  // 現在選択されている納品伝票のID
   const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
-  const [currentDeliveryDetails, setCurrentDeliveryDetails] = useState(null); // 編集中の伝票詳細
+  // 編集中の納品伝票の詳細データ（ディープコピー）
+  const [currentDeliveryDetails, setCurrentDeliveryDetails] = useState(null);
+  // 検索キーワード
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]); // 今日の日付で初期化
+  // フィルタリング対象の日付（今日のYYYY-MM-DD形式で初期化）
+  const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // 差し戻しモーダルの表示状態
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
-  const [itemToReject, setItemToReject] = useState(null); // 差し戻し対象のアイテム
+  // 差し戻し対象のアイテム
+  const [itemToReject, setItemToReject] = useState(null);
 
-  // selectedDeliveryIdが変更されたら、currentDeliveryDetailsを更新
+  // selectedDeliveryIdまたはdeliveriesが変更されたら、currentDeliveryDetailsを更新
   useEffect(() => {
     if (selectedDeliveryId) {
       const delivery = deliveries.find(d => d.id === selectedDeliveryId);
-      // ディープコピーを作成して、元のdeliveries配列に影響を与えずに編集できるようにする
+      // 元のdeliveries配列に影響を与えないように、ディープコピーを作成
       setCurrentDeliveryDetails(JSON.parse(JSON.stringify(delivery)));
     } else {
       setCurrentDeliveryDetails(null);
     }
   }, [selectedDeliveryId, deliveries]);
 
-  // フィルタリングされた納品伝票のリスト
+  // フィルタリングされた納品伝票のリストを計算
   const filteredDeliveries = deliveries.filter(delivery => {
+    // 検索キーワードによるフィルタリング
     const matchesSearch = delivery.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           delivery.id.toLowerCase().includes(searchTerm.toLowerCase());
+    // 日付によるフィルタリング
     const matchesDate = filterDate ? delivery.deliveryDate === filterDate : true;
     return matchesSearch && matchesDate;
   });
@@ -146,15 +165,15 @@ const App = () => {
   // 日付を前日に変更
   const handlePreviousDay = () => {
     const currentDate = new Date(filterDate);
-    currentDate.setDate(currentDate.getDate() - 1);
-    setFilterDate(currentDate.toISOString().split('T')[0]);
+    currentDate.setDate(currentDate.getDate() - 1); // 日付を1日減らす
+    setFilterDate(currentDate.toISOString().split('T')[0]); // YYYY-MM-DD形式で更新
   };
 
   // 日付を翌日に変更
   const handleNextDay = () => {
     const currentDate = new Date(filterDate);
-    currentDate.setDate(currentDate.getDate() + 1);
-    setFilterDate(currentDate.toISOString().split('T')[0]);
+    currentDate.setDate(currentDate.getDate() + 1); // 日付を1日増やす
+    setFilterDate(currentDate.toISOString().split('T')[0]); // YYYY-MM-DD形式で更新
   };
 
   // ステータスに応じたアイコンと色を返すヘルパー関数
@@ -179,32 +198,35 @@ const App = () => {
 
     const updatedItems = currentDeliveryDetails.items.map(item => {
       if (item.id === itemId) {
+        // 受領ステータスにし、受領数を発注数と同じにする
         return { ...item, status: 'received', quantityReceived: item.quantityOrdered };
       }
       return item;
     });
+    // currentDeliveryDetailsを更新してUIに反映
     setCurrentDeliveryDetails({ ...currentDeliveryDetails, items: updatedItems });
   };
 
   // 明細の差し戻し処理（モーダル表示）
   const handleInitiateRejectItem = (item) => {
-    setItemToReject(item);
-    setIsRejectionModalOpen(true);
+    setItemToReject(item); // 差し戻し対象アイテムを設定
+    setIsRejectionModalOpen(true); // モーダルを表示
   };
 
-  // 明細の差し戻し確定処理（モーダルから）
+  // 明細の差し戻し確定処理（モーダルから理由を受け取る）
   const handleConfirmRejectItem = (reason) => {
     if (!currentDeliveryDetails || !itemToReject) return;
 
     const updatedItems = currentDeliveryDetails.items.map(item => {
       if (item.id === itemToReject.id) {
+        // 差し戻しステータスにし、受領数を0、差し戻し理由を設定
         return { ...item, status: 'rejected', quantityReceived: 0, rejectionReason: reason };
       }
       return item;
     });
     setCurrentDeliveryDetails({ ...currentDeliveryDetails, items: updatedItems });
-    setIsRejectionModalOpen(false);
-    setItemToReject(null);
+    setIsRejectionModalOpen(false); // モーダルを閉じる
+    setItemToReject(null); // 差し戻し対象アイテムをリセット
   };
 
   // 受領数の変更ハンドラ
@@ -212,7 +234,8 @@ const App = () => {
     if (!currentDeliveryDetails) return;
     const updatedItems = currentDeliveryDetails.items.map(item => {
       if (item.id === itemId) {
-        const newQuantity = parseInt(value, 10);
+        const newQuantity = parseInt(value, 10); // 数値に変換
+        // 無効な数値の場合は0に設定
         return { ...item, quantityReceived: isNaN(newQuantity) ? 0 : newQuantity };
       }
       return item;
@@ -225,23 +248,24 @@ const App = () => {
     if (!currentDeliveryDetails) return;
 
     // 伝票全体のステータスを再評価
-    let newDeliveryStatus = 'pending';
+    let newDeliveryStatus = 'pending'; // デフォルトは未検品
     const allItemsReceived = currentDeliveryDetails.items.every(item => item.status === 'received');
     const anyItemRejected = currentDeliveryDetails.items.some(item => item.status === 'rejected');
     const allItemsRejected = currentDeliveryDetails.items.every(item => item.status === 'rejected');
 
     if (allItemsReceived) {
-      newDeliveryStatus = 'received';
+      newDeliveryStatus = 'received'; // 全て受領済み
     } else if (anyItemRejected) {
-      newDeliveryStatus = allItemsRejected ? 'rejected' : 'partially_rejected';
+      newDeliveryStatus = allItemsRejected ? 'rejected' : 'partially_rejected'; // 一部または全て差し戻し
     } else {
-      // まだpendingのアイテムがある場合
+      // まだpendingのアイテムがある場合、ステータスはpendingのまま
       newDeliveryStatus = 'pending';
     }
 
+    // 最終的な伝票オブジェクトを作成
     const finalDelivery = { ...currentDeliveryDetails, status: newDeliveryStatus };
 
-    // deliveries配列を更新
+    // deliveries配列を更新（元の配列の該当伝票を置き換える）
     setDeliveries(prevDeliveries =>
       prevDeliveries.map(d => (d.id === finalDelivery.id ? finalDelivery : d))
     );
@@ -249,7 +273,6 @@ const App = () => {
     // 詳細ビューを閉じてリストに戻る
     setSelectedDeliveryId(null);
   };
-
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter p-4 sm:p-6 lg:p-8 flex items-center justify-center">

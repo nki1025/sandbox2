@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "lucide-react": "^0.525.0",
     "next": "^13.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -23,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/nki1025/sandbox2/issues"
   },
-    "engines": {
+  "engines": {
     "node": "22.x"
   },
   "homepage": "https://github.com/nki1025/sandbox2#readme"
